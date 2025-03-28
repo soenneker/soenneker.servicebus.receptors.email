@@ -20,7 +20,7 @@ public sealed class EmailsReceptor : ServiceBusReceptor, IEmailsReceptor
     {
     }
 
-    public override ValueTask OnMessageReceived(string messageContent, Type? type)
+    public override ValueTask OnMessageReceived(string messageContent, Type? type, CancellationToken cancellationToken = default)
     {
         try
         {
