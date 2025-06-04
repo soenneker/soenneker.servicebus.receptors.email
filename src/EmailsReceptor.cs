@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Hangfire;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Soenneker.Email.Sender.Abstract;
+using Soenneker.Email.Senders.Abstract;
 using Soenneker.ServiceBus.Client.Abstract;
 using Soenneker.ServiceBus.Queue.Abstract;
 using Soenneker.ServiceBus.Receptor;

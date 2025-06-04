@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Soenneker.Email.Sender.Registrars;
 using Soenneker.ServiceBus.Queue.Registrars;
 using Soenneker.ServiceBus.Receptors.Email.Abstract;
 
@@ -16,7 +15,7 @@ public static class EmailsReceptorRegistrar
     /// </summary>
     public static IServiceCollection AddEmailsReceptorAsSingleton(this IServiceCollection services)
     {
-        services.AddEmailSenderAsScoped().AddServiceBusQueueUtilAsSingleton().TryAddSingleton<IEmailsReceptor, EmailsReceptor>();
+        services.AddServiceBusQueueUtilAsSingleton().TryAddSingleton<IEmailsReceptor, EmailsReceptor>();
 
         return services;
     }
