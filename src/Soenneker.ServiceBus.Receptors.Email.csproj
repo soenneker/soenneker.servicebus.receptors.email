@@ -42,7 +42,7 @@
 
     <ItemGroup>
         <PackageReference Include="Hangfire.Core" Version="1.8.23" />
-        <PackageReference Include="Soenneker.Email.Senders.Abstract" Version="4.0.100" />
+        <PackageReference Include="Soenneker.Email.Senders.Abstract" Version="4.0.101" />
         <PackageReference Include="Soenneker.ServiceBus.Receptor" Version="4.0.1889" />
         <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2464" />
     </ItemGroup>
