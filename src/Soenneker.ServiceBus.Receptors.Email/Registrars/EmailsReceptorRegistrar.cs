@@ -13,6 +13,8 @@ public static class EmailsReceptorRegistrar
     /// <summary>
     /// Adds <see cref="IEmailsReceptor"/> as a singleton service. <para/>
     /// </summary>
+    /// <param name="services">Service collection that receives the registration.</param>
+    /// <returns>The same service collection, so additional registrations can be chained.</returns>
     public static IServiceCollection AddEmailsReceptorAsSingleton(this IServiceCollection services)
     {
         services.AddServiceBusQueueUtilAsSingleton().TryAddSingleton<IEmailsReceptor, EmailsReceptor>();
