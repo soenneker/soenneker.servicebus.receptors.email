@@ -12,7 +12,7 @@ using Soenneker.ServiceBus.Receptors.Email.Abstract;
 
 namespace Soenneker.ServiceBus.Receptors.Email;
 
-///<inheritdoc cref="IEmailsReceptor"/>
+/// <inheritdoc cref="IEmailsReceptor"/>
 public sealed class EmailsReceptor : ServiceBusReceptor, IEmailsReceptor
 {
     public EmailsReceptor(IServiceBusClientUtil serviceBusClientUtil, IServiceBusQueueUtil serviceBusQueueUtil, ILogger<EmailsReceptor> logger, IConfiguration config)
