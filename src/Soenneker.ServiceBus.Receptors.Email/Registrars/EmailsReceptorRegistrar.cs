@@ -6,7 +6,7 @@ using Soenneker.ServiceBus.Receptors.Email.Abstract;
 namespace Soenneker.ServiceBus.Receptors.Email.Registrars;
 
 /// <summary>
-/// A Hangfire-integrated Service Bus message receptor that deserializes incoming Email messages and enqueues them for webhook processing using a background job.
+/// Registers the Hangfire-backed <c>email</c> queue receptor and its Service Bus dependencies.
 /// </summary>
 public static class EmailsReceptorRegistrar
 {

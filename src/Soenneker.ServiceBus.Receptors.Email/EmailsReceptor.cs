@@ -35,7 +35,8 @@ public sealed class EmailsReceptor : ServiceBusReceptor, IEmailsReceptor
         }
         catch (Exception e)
         {
-            Logger.LogError(e, "Unable to queue job with content: {content}", messageContent);
+            Logger.LogError(e, "Unable to enqueue email job for message type {type}", type);
+            throw;
         }
 
         return ValueTask.CompletedTask;

@@ -3,7 +3,7 @@
 namespace Soenneker.ServiceBus.Receptors.Email.Abstract;
 
 /// <summary>
-/// A Hangfire-integrated Service Bus message receptor that deserializes incoming Email messages and enqueues them for webhook processing using a background job.
+/// Consumes messages from the <c>email</c> Service Bus queue and enqueues their raw body and type for <c>IEmailSender</c> processing through Hangfire.
 /// </summary>
 public interface IEmailsReceptor : IServiceBusReceptor
 {
