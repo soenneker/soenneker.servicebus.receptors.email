@@ -20,7 +20,7 @@ public class EmailJobTests
         if (!condition) throw new InvalidOperationException(message);
     }
     [Test]
-    public async Task EmailJobPreservesHangfireContract()
+    public async ValueTask EmailJobPreservesHangfireContract()
     {
         var client = new RecordingJobs();
         var receptor = new EmailsReceptor(null!, null!, NullLogger<EmailsReceptor>.Instance, Fixture.Config(), client);
