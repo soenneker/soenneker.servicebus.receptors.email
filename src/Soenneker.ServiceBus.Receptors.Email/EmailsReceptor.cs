@@ -17,7 +17,7 @@ namespace Soenneker.ServiceBus.Receptors.Email;
 
 public sealed class EmailsReceptor : ServiceBusReceptor, IEmailsReceptor
 {
-    private static readonly MethodInfo _sendMethod = typeof(IEmailSender).GetMethod(nameof(IEmailSender.Send), [typeof(string), typeof(string), typeof(CancellationToken)])!;
+    private static readonly MethodInfo _sendMethod = ((System.Linq.Expressions.MethodCallExpression)((System.Linq.Expressions.Expression<Action<IEmailSender>>)(sender => sender.Send(default!, default!, default))).Body).Method;
     private static readonly object _jobCancellationToken = CancellationToken.None;
     private readonly IBackgroundJobClient? _backgroundJobClient;
 
