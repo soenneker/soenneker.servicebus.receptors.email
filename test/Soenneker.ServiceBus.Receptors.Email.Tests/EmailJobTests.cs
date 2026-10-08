@@ -20,11 +20,11 @@ public class EmailJobTests
         if (!condition) throw new InvalidOperationException(message);
     }
     [Test]
-    public async ValueTask EmailJobPreservesHangfireContract()
+    public async ValueTask EmailJobPreservesHangfireContract(CancellationToken cancellationToken)
     {
         var client = new RecordingJobs();
         var receptor = new EmailsReceptor(null!, null!, NullLogger<EmailsReceptor>.Instance, Fixture.Config(), client);
-        await receptor.OnMessageReceived("body", "type");
+        await receptor.OnMessageReceived("body", "type", cancellationToken: cancellationToken);
         Check(client.Job!.Type == typeof(IEmailSender) && client.Job.Method.Name == "Send", "Wrong Hangfire target");
         Check((string)client.Job.Args[0] == "body" && (string)client.Job.Args[1] == "type", "Wrong Hangfire args");
         Check((CancellationToken)client.Job.Args[2] == CancellationToken.None && client.State is EnqueuedState, "Wrong cancellation/state");
