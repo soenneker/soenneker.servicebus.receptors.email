@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net11.0</TargetFramework>
+        <Features Condition="'$(TargetFramework)' == 'net11.0'">$(Features);runtime-async=on</Features>
         <IsAotCompatible>true</IsAotCompatible>
         <Nullable>enable</Nullable>
         <Platforms>AnyCPU</Platforms>
@@ -46,9 +47,9 @@
 
     <ItemGroup>
         <PackageReference Include="Hangfire.Core" Version="1.8.25" />
-        <PackageReference Include="Soenneker.Email.Senders.Abstract" Version="11.0.213" />
+        <PackageReference Include="Soenneker.Email.Senders.Abstract" Version="11.0.214" />
         <PackageReference Include="Soenneker.ServiceBus.Receptor" Version="11.0.2097" />
-        <PackageReference Include="Soenneker.Utils.Json" Version="11.0.2763" />
+        <PackageReference Include="Soenneker.Utils.Json" Version="11.0.2764" />
     </ItemGroup>
     <ItemGroup>
         <!-- Override the vulnerable transitive dependency. -->
