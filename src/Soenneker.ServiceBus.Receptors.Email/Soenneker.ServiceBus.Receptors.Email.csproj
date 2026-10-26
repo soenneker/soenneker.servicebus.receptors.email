@@ -47,9 +47,9 @@
 
     <ItemGroup>
         <PackageReference Include="Hangfire.Core" Version="1.8.25" />
-        <PackageReference Include="Soenneker.Email.Senders.Abstract" Version="11.0.214" />
+        <PackageReference Include="Soenneker.Email.Senders.Abstract" Version="11.0.215" />
         <PackageReference Include="Soenneker.ServiceBus.Receptor" Version="11.0.2099" />
-        <PackageReference Include="Soenneker.Utils.Json" Version="11.0.2764" />
+        <PackageReference Include="Soenneker.Utils.Json" Version="11.0.2766" />
     </ItemGroup>
     <ItemGroup>
         <!-- Override the vulnerable transitive dependency. -->
