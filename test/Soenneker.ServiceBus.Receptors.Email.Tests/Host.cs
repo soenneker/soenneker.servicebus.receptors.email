@@ -27,6 +27,7 @@ public sealed class Host : UnitTestHost
         IConfiguration config = TestUtil.BuildConfig();
         services.AddSingleton(config);
 
+        services.AddSingleton(NSubstitute.Substitute.For<Soenneker.Flywheel.Core.Services.Abstract.IJobClient>());
         services.AddEmailsReceptorAsSingleton();
     }
 }

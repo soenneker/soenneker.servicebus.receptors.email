@@ -1,13 +1,9 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Hangfire;
-using Hangfire.Common;
-using Hangfire.States;
-using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Soenneker.Email.Senders.Abstract;
+using Soenneker.Flywheel.Core.Services.Abstract;
 using Soenneker.ServiceBus.Client.Abstract;
 using Soenneker.ServiceBus.Queue.Abstract;
 using Soenneker.ServiceBus.Receptor;
@@ -17,33 +13,24 @@ namespace Soenneker.ServiceBus.Receptors.Email;
 
 public sealed class EmailsReceptor : ServiceBusReceptor, IEmailsReceptor
 {
-    private static readonly MethodInfo _sendMethod = ((System.Linq.Expressions.MethodCallExpression)((System.Linq.Expressions.Expression<Action<IEmailSender>>)(sender => sender.Send(default!, default!, default))).Body).Method;
-    private static readonly object _jobCancellationToken = CancellationToken.None;
-    private readonly IBackgroundJobClient? _backgroundJobClient;
+    private readonly IJobClient _jobs;
 
     public EmailsReceptor(IServiceBusClientUtil serviceBusClientUtil, IServiceBusQueueUtil serviceBusQueueUtil, ILogger<EmailsReceptor> logger,
-        IConfiguration config, IBackgroundJobClient backgroundJobClient) : this(serviceBusClientUtil, serviceBusQueueUtil, logger, config)
+        IConfiguration config, IJobClient jobs) : base("email", logger, serviceBusClientUtil, serviceBusQueueUtil, config)
     {
-        _backgroundJobClient = backgroundJobClient;
+        _jobs = jobs;
     }
 
-    public EmailsReceptor(IServiceBusClientUtil serviceBusClientUtil, IServiceBusQueueUtil serviceBusQueueUtil, ILogger<EmailsReceptor> logger, IConfiguration config)
-        : base("email", logger, serviceBusClientUtil, serviceBusQueueUtil, config)
-    {
-    }
-
-    public override ValueTask OnMessageReceived(string messageContent, string type, CancellationToken cancellationToken = default)
+    public override async ValueTask OnMessageReceived(string messageContent, string type, CancellationToken cancellationToken = default)
     {
         try
         {
-            _ = (_backgroundJobClient ?? new BackgroundJobClient()).Create(new Job(typeof(IEmailSender), _sendMethod, [messageContent, type, _jobCancellationToken]), new EnqueuedState());
+            await _jobs.Enqueue(EmailJobInvoker.Definition, new EmailJobPayload(messageContent, type), cancellationToken: cancellationToken);
         }
         catch (Exception e)
         {
             Logger.LogError(e, "Unable to enqueue email job for message type {type}", type);
             throw;
         }
-
-        return ValueTask.CompletedTask;
     }
 }

@@ -1,48 +1,75 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.ServiceBus.Receptors.Email;
-using Soenneker.Email.Senders.Abstract;
-using Hangfire;
-using Hangfire.Common;
-using Hangfire.States;
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
+using NSubstitute;
+using Soenneker.Email.Senders.Abstract;
+using Soenneker.Flywheel.Communication.Dtos;
+using Soenneker.Flywheel.Core.Services.Abstract;
+using Soenneker.ServiceBus.Receptors.Email.Registrars;
 
-namespace Audit;
+namespace Soenneker.ServiceBus.Receptors.Email.Tests;
 
 public class EmailJobTests
 {
-    private static void Check(bool condition, string message)
+    [Test]
+    public async Task EmailJobPreservesPayloadAndCancellation(CancellationToken cancellationToken)
     {
-        if (!condition) throw new InvalidOperationException(message);
+        var jobs = Substitute.For<IJobClient>();
+        var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["Azure:ServiceBus:Enable"] = "true", ["Background:QueueLength"] = "32"
+        }).Build();
+        var receptor = new EmailsReceptor(null!, null!, NullLogger<EmailsReceptor>.Instance, config, jobs);
+        await receptor.OnMessageReceived("body", "type", cancellationToken);
+        await jobs.Received(1).Enqueue(Arg.Is<JobDefinition<EmailJobPayload>>(j => j.Name == "soenneker.email.send.v1"),
+            new EmailJobPayload("body", "type"), cancellationToken: cancellationToken);
+    }
+
+    [Test]
+    public async Task EnqueueFailurePropagatesAfterPersistenceCompletes()
+    {
+        var jobs = Substitute.For<IJobClient>();
+        var pending = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+        jobs.Enqueue(Arg.Any<JobDefinition<EmailJobPayload>>(), Arg.Any<EmailJobPayload>()).Returns(pending.Task);
+        var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["Azure:ServiceBus:Enable"] = "true", ["Background:QueueLength"] = "32"
+        }).Build();
+        var receptor = new EmailsReceptor(null!, null!, NullLogger<EmailsReceptor>.Instance, config, jobs);
+        Task handling = receptor.OnMessageReceived("body", "type").AsTask();
+        if (handling.IsCompleted) throw new InvalidOperationException("Message completed before persistence.");
+        var failure = new InvalidOperationException("Store unavailable");
+        pending.SetException(failure);
+        try
+        {
+            await handling;
+        }
+        catch (InvalidOperationException e) when (ReferenceEquals(e, failure))
+        {
+            return;
+        }
+        throw new InvalidOperationException("Enqueue failure was swallowed.");
     }
     [Test]
-    public async ValueTask EmailJobPreservesHangfireContract(CancellationToken cancellationToken)
+    public async Task RegisteredJobInvokesSender(CancellationToken cancellationToken)
     {
-        var client = new RecordingJobs();
-        var receptor = new EmailsReceptor(null!, null!, NullLogger<EmailsReceptor>.Instance, Fixture.Config(), client);
-        await receptor.OnMessageReceived("body", "type", cancellationToken: cancellationToken);
-        Check(client.Job!.Type == typeof(IEmailSender) && client.Job.Method.Name == "Send", "Wrong Hangfire target");
-        Check((string)client.Job.Args[0] == "body" && (string)client.Job.Args[1] == "type", "Wrong Hangfire args");
-        Check((CancellationToken)client.Job.Args[2] == CancellationToken.None && client.State is EnqueuedState, "Wrong cancellation/state");
-    }
-    private sealed class RecordingJobs : IBackgroundJobClient
-    {
-        public Job? Job; public IState? State;
-        public string Create(Job job, IState state) { Job = job; State = state; return "1"; }
-        public bool ChangeState(string jobId, IState state, string expectedState) => true;
-    }
-}
-
-internal static class Fixture
-{
-    public static Microsoft.Extensions.Configuration.IConfiguration Config(bool logging = false, bool counts = true) =>
-        new Microsoft.Extensions.Configuration.ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        var sender = Substitute.For<IEmailSender>();
+        var services = new ServiceCollection();
+        services.AddSingleton(sender);
+        services.AddEmailsReceptorAsSingleton();
+        services.AddEmailsReceptorAsSingleton();
+        await using ServiceProvider provider = services.BuildServiceProvider();
+        IJobInvoker? invoker = null;
+        foreach (IJobInvoker registered in provider.GetServices<IJobInvoker>())
         {
-            ["Azure:ServiceBus:Enable"] = "true", ["Azure:ServiceBus:TransmitterLogging"] = logging.ToString(),
-            ["Background:QueueLength"] = "32", ["Background:LockCounts"] = counts.ToString()
-        }).Build();
+            if (invoker != null) throw new InvalidOperationException("Duplicate email job registration.");
+            invoker = registered;
+        }
+        await invoker!.Invoke(provider, "{\"messageContent\":\"body\",\"type\":\"type\"}", cancellationToken);
+        await sender.Received(1).Send("body", "type", cancellationToken);
+    }
 }

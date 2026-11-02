@@ -9,12 +9,12 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Description>Consumes email queue messages and enqueues their raw body and type for Hangfire-backed email processing.</Description>
+        <Description>Consumes email queue messages and enqueues their raw body and type for Flywheel-backed email processing.</Description>
         <Version Condition="'$(BUILD_VERSION)' == ''">11.0.0</Version>
         <Version Condition="'$(BUILD_VERSION)' != ''">$(BUILD_VERSION)</Version>
         <AssemblyName>Soenneker.ServiceBus.Receptors.Email</AssemblyName>
         <PackageId>Soenneker.ServiceBus.Receptors.Email</PackageId>
-        <PackageTags>servicebus receptors email microsoft service bus webhook sender hangfire emailsreceptor util csharp dotnet c# .net</PackageTags>
+        <PackageTags>servicebus receptors email microsoft service bus webhook sender flywheel emailsreceptor util csharp dotnet c# .net</PackageTags>
         <Copyright>Copyright © 2025-2026 Jake Soenneker</Copyright>
         <Authors>Jake Soenneker</Authors>
         <Company>https://soenneker.com</Company>
@@ -46,13 +46,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Hangfire.Core" Version="1.8.25" />
         <PackageReference Include="Soenneker.Email.Senders.Abstract" Version="11.0.220" />
         <PackageReference Include="Soenneker.ServiceBus.Receptor" Version="11.0.2103" />
-        <PackageReference Include="Soenneker.Utils.Json" Version="11.0.2770" />
-    </ItemGroup>
-    <ItemGroup>
-        <!-- Override the vulnerable transitive dependency. -->
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+        <PackageReference Include="Soenneker.Flywheel.Core" Version="5.0.427" />
     </ItemGroup>
 </Project>
