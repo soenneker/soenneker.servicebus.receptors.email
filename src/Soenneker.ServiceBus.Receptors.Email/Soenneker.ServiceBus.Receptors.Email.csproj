@@ -48,6 +48,6 @@
     <ItemGroup>
         <PackageReference Include="Soenneker.Email.Senders.Abstract" Version="11.0.227" />
         <PackageReference Include="Soenneker.ServiceBus.Receptor" Version="11.0.2111" />
-        <PackageReference Include="Soenneker.Flywheel.Core" Version="11.0.482" />
+        <PackageReference Include="Soenneker.Flywheel.Core" Version="11.0.484" />
     </ItemGroup>
 </Project>
