@@ -46,8 +46,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Email.Senders.Abstract" Version="11.0.233" />
+        <PackageReference Include="Soenneker.Email.Senders.Abstract" Version="11.0.234" />
         <PackageReference Include="Soenneker.ServiceBus.Receptor" Version="11.0.2119" />
-        <PackageReference Include="Soenneker.Flywheel.Core" Version="11.0.541" />
+        <PackageReference Include="Soenneker.Flywheel.Core" Version="11.0.542" />
     </ItemGroup>
 </Project>
